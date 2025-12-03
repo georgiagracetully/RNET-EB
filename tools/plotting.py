@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
 
 
 def plot_logkd_histograms(df, figsize=(14, 6), color1='#2E86AB', color2='#A23B72', bins=30):
@@ -77,8 +78,8 @@ def plot_loss_curve(train_losses, val_losses, figure_dir, filename='loss_curve')
         filename: Base filename (without extension)
     """
     # Set font to Times New Roman
-    plt.rcParams['font.family'] = 'Times New Roman'
-    plt.rcParams['font.size'] = 12
+    plt.rcParams['font.serif'] = ['Times New Roman']
+    plt.rcParams['font.size'] = 14
     
     fig, ax = plt.subplots(figsize=(10, 6))
     epochs_range = range(1, len(train_losses) + 1)
@@ -133,8 +134,9 @@ def plot_final_summary(train_losses, val_losses, figure_dir, filename='final_los
         filename: Base filename (without extension)
     """
     # Set font to Times New Roman
-    plt.rcParams['font.family'] = 'Times New Roman'
-    plt.rcParams['font.size'] = 12
+   # Set font to Times New Roman
+    plt.rcParams['font.serif'] = ['Times New Roman']
+    plt.rcParams['font.size'] = 14
     
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
     epochs_range = range(1, len(train_losses) + 1)
