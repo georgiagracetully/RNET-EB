@@ -134,7 +134,6 @@ def plot_final_summary(train_losses, val_losses, figure_dir, filename='final_los
         filename: Base filename (without extension)
     """
     # Set font to Times New Roman
-   # Set font to Times New Roman
     plt.rcParams['font.serif'] = ['Times New Roman']
     plt.rcParams['font.size'] = 14
     
@@ -191,3 +190,158 @@ def plot_final_summary(train_losses, val_losses, figure_dir, filename='final_los
     
     # Reset to defaults
     plt.rcParams.update(plt.rcParamsDefault)
+
+def plot_prediction_comparison(test_data, save_dir=None, show_plots=True):
+    """
+    Create scatter plots comparing experimental and predicted logKd values.
+    
+    Args:
+        test_data: DataFrame containing experimental and predicted values
+        save_dir: Directory to save figures (optional)
+        show_plots: Whether to display plots (default: True)
+    
+    Returns:
+        dict: Dictionary containing correlation coefficients
+    """
+    # Set matplotlib parameters for Times New Roman and LaTeX
+    # Set font to Times New Roman
+    plt.rcParams['font.serif'] = ['Times New Roman']
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['text.usetex'] = True
+    plt.rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
+    
+    # Colorblind-friendly colors from Wong palette
+    scatter_color_lig = '#0072B2'      # Blue
+    scatter_color_nolig = '#009E73'    # Teal/green
+    regline_color = '#D55E00'          # Vermillion/red-orange
+    
+    # Calculate correlation coefficients
+    corr_lig = np.corrcoef(test_data['logkd_lig_scaled'], 
+                           test_data['log_kfold_est_lig_Z'])[0, 1]
+    corr_nolig = np.corrcoef(test_data['logkd_nolig_scaled'], 
+                             test_data['log_kfold_est_nolig_Z'])[0, 1]
+    
+    # ========================================================================
+    # First plot: logkd_lig vs. logkd_lig_pred
+    # ========================================================================
+    fig1, ax1 = plt.subplots(figsize=(10, 6))
+    
+    # Scatter plot
+    ax1.scatter(test_data['logkd_lig_scaled'], 
+                test_data['log_kfold_est_lig_Z'],
+                color=scatter_color_lig, 
+                s=100, 
+                alpha=0.6,
+                edgecolors='black',
+                linewidth=0.5)
+    
+    # Regression line
+    z = np.polyfit(test_data['logkd_lig_scaled'], 
+                   test_data['log_kfold_est_lig_Z'], 1)
+    p = np.poly1d(z)
+    x_line = np.linspace(test_data['logkd_lig_scaled'].min(), 
+                         test_data['logkd_lig_scaled'].max(), 100)
+    ax1.plot(x_line, p(x_line), 
+             color=regline_color, 
+             linewidth=2.5, 
+             label=f'$r = {corr_lig:.3f}$')
+    
+    # Labels with LaTeX
+    ax1.set_xlabel(r'Experimental $\log K_\mathrm{d}$ (ligand)', fontsize=14)
+    ax1.set_ylabel(r'Predicted $\log K_\mathrm{d}$ (ligand)', fontsize=14)
+    ax1.set_title(r'RNET-EB: Ligand-bound State', fontsize=16)
+    
+    # Legend
+    ax1.legend(fontsize=12, frameon=False, loc='best')
+    
+    # Remove grid
+    ax1.grid(False)
+    
+    # Thick black outline
+    for spine in ax1.spines.values():
+        spine.set_linewidth(2)
+        spine.set_edgecolor('black')
+    
+    # Increase tick width
+    ax1.tick_params(width=2, length=6, color='black')
+    
+    plt.tight_layout()
+    
+    # Save figure
+    if save_dir:
+        fig1.savefig(f'{save_dir}/logkd_lig_comparison.svg', 
+                     format='svg', dpi=300, bbox_inches='tight')
+        fig1.savefig(f'{save_dir}/logkd_lig_comparison.png', 
+                     format='png', dpi=300, bbox_inches='tight')
+    
+    if show_plots:
+        plt.show()
+    else:
+        plt.close(fig1)
+    
+    # ========================================================================
+    # Second plot: logkd_nolig vs. logkd_no_lig_pred
+    # ========================================================================
+    fig2, ax2 = plt.subplots(figsize=(10, 6))
+    
+    # Scatter plot
+    ax2.scatter(test_data['logkd_nolig_scaled'], 
+                test_data['log_kfold_est_nolig_Z'],
+                color=scatter_color_nolig, 
+                s=100, 
+                alpha=0.6,
+                edgecolors='black',
+                linewidth=0.5)
+    
+    # Regression line
+    z = np.polyfit(test_data['logkd_nolig_scaled'], 
+                   test_data['log_kfold_est_nolig_Z'], 1)
+    p = np.poly1d(z)
+    x_line = np.linspace(test_data['logkd_nolig_scaled'].min(), 
+                         test_data['logkd_nolig_scaled'].max(), 100)
+    ax2.plot(x_line, p(x_line), 
+             color=regline_color, 
+             linewidth=2.5, 
+             label=f'$r = {corr_nolig:.3f}$')
+    
+    # Labels with LaTeX
+    ax2.set_xlabel(r'Experimental $\log K_\mathrm{d}$ (no ligand)', fontsize=14)
+    ax2.set_ylabel(r'Predicted $\log K_\mathrm{d}$ (no ligand)', fontsize=14)
+    ax2.set_title(r'RNET-EB: Ligand-free State', fontsize=16)
+    
+    # Legend
+    ax2.legend(fontsize=12, frameon=False, loc='best')
+    
+    # Remove grid
+    ax2.grid(False)
+    
+    # Thick black outline
+    for spine in ax2.spines.values():
+        spine.set_linewidth(2)
+        spine.set_edgecolor('black')
+    
+    # Increase tick width
+    ax2.tick_params(width=2, length=6, color='black')
+    
+    plt.tight_layout()
+    
+    # Save figure
+    if save_dir:
+        fig2.savefig(f'{save_dir}/logkd_nolig_comparison.svg', 
+                     format='svg', dpi=300, bbox_inches='tight')
+        fig2.savefig(f'{save_dir}/logkd_nolig_comparison.png', 
+                     format='png', dpi=300, bbox_inches='tight')
+    
+    if show_plots:
+        plt.show()
+    else:
+        plt.close(fig2)
+    
+    # Reset matplotlib parameters
+    plt.rcParams.update(plt.rcParamsDefault)
+    
+    # Return correlation coefficients
+    return {
+        'correlation_lig': corr_lig,
+        'correlation_nolig': corr_nolig
+    }
