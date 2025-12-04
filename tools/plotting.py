@@ -247,8 +247,8 @@ def plot_prediction_comparison(test_data, save_dir=None, show_plots=True):
              label=f'r = {corr_lig:.3f}')
     
     # Labels with Unicode subscripts (no LaTeX needed)
-    ax1.set_xlabel('Experimental log K\u2091 (ligand)', fontsize=14)
-    ax1.set_ylabel('Predicted log K\u2091 (ligand)', fontsize=14)
+    ax1.set_xlabel('Experimental log K\u1D05 (ligand)', fontsize=14)
+    ax1.set_ylabel('Predicted log K\u1D05 (ligand)', fontsize=14)
     ax1.set_title('RNET-EB: Ligand-bound State', fontsize=16)
     
     # Legend
@@ -307,8 +307,8 @@ def plot_prediction_comparison(test_data, save_dir=None, show_plots=True):
              label=f'r = {corr_nolig:.3f}')
     
     # Labels with Unicode subscripts (no LaTeX needed)
-    ax2.set_xlabel('Experimental log K\u2091 (no ligand)', fontsize=14)
-    ax2.set_ylabel('Predicted log K\u2091 (no ligand)', fontsize=14)
+    ax2.set_xlabel('Experimental log K\u1D05 (no ligand)', fontsize=14)
+    ax2.set_ylabel('Predicted log K\u1D05 (no ligand)', fontsize=14)
     ax2.set_title('RNET-EB: Ligand-free State', fontsize=16)
     
     # Legend
