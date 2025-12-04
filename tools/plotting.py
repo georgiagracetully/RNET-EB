@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+import numpy as np
 
 
 def plot_logkd_histograms(df, figsize=(14, 6), color1='#2E86AB', color2='#A23B72', bins=30):
@@ -203,12 +204,11 @@ def plot_prediction_comparison(test_data, save_dir=None, show_plots=True):
     Returns:
         dict: Dictionary containing correlation coefficients
     """
-    # Set matplotlib parameters for Times New Roman and LaTeX
+    # Set matplotlib parameters for Times New Roman (no LaTeX)
     # Set font to Times New Roman
     plt.rcParams['font.serif'] = ['Times New Roman']
     plt.rcParams['font.size'] = 14
-    plt.rcParams['text.usetex'] = True
-    plt.rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
+    
     
     # Colorblind-friendly colors from Wong palette
     scatter_color_lig = '#0072B2'      # Blue
@@ -244,12 +244,12 @@ def plot_prediction_comparison(test_data, save_dir=None, show_plots=True):
     ax1.plot(x_line, p(x_line), 
              color=regline_color, 
              linewidth=2.5, 
-             label=f'$r = {corr_lig:.3f}$')
+             label=f'r = {corr_lig:.3f}')
     
-    # Labels with LaTeX
-    ax1.set_xlabel(r'Experimental $\log K_\mathrm{d}$ (ligand)', fontsize=14)
-    ax1.set_ylabel(r'Predicted $\log K_\mathrm{d}$ (ligand)', fontsize=14)
-    ax1.set_title(r'RNET-EB: Ligand-bound State', fontsize=16)
+    # Labels with Unicode subscripts (no LaTeX needed)
+    ax1.set_xlabel('Experimental log K\u2091 (ligand)', fontsize=14)
+    ax1.set_ylabel('Predicted log K\u2091 (ligand)', fontsize=14)
+    ax1.set_title('RNET-EB: Ligand-bound State', fontsize=16)
     
     # Legend
     ax1.legend(fontsize=12, frameon=False, loc='best')
@@ -269,6 +269,8 @@ def plot_prediction_comparison(test_data, save_dir=None, show_plots=True):
     
     # Save figure
     if save_dir:
+        from pathlib import Path
+        Path(save_dir).mkdir(parents=True, exist_ok=True)
         fig1.savefig(f'{save_dir}/logkd_lig_comparison.svg', 
                      format='svg', dpi=300, bbox_inches='tight')
         fig1.savefig(f'{save_dir}/logkd_lig_comparison.png', 
@@ -302,12 +304,12 @@ def plot_prediction_comparison(test_data, save_dir=None, show_plots=True):
     ax2.plot(x_line, p(x_line), 
              color=regline_color, 
              linewidth=2.5, 
-             label=f'$r = {corr_nolig:.3f}$')
+             label=f'r = {corr_nolig:.3f}')
     
-    # Labels with LaTeX
-    ax2.set_xlabel(r'Experimental $\log K_\mathrm{d}$ (no ligand)', fontsize=14)
-    ax2.set_ylabel(r'Predicted $\log K_\mathrm{d}$ (no ligand)', fontsize=14)
-    ax2.set_title(r'RNET-EB: Ligand-free State', fontsize=16)
+    # Labels with Unicode subscripts (no LaTeX needed)
+    ax2.set_xlabel('Experimental log K\u2091 (no ligand)', fontsize=14)
+    ax2.set_ylabel('Predicted log K\u2091 (no ligand)', fontsize=14)
+    ax2.set_title('RNET-EB: Ligand-free State', fontsize=16)
     
     # Legend
     ax2.legend(fontsize=12, frameon=False, loc='best')
