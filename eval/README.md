@@ -44,11 +44,3 @@ This generates a heatmap visualization named `Figure_3D_replicate_with_eb.pdf` c
 - Results are organized by dataset for easy comparison
 ```
 
-**Key changes made:**
-- Separated all code blocks with proper markdown code fences
-- Preserved all underscores as literal characters (not markdown formatting)
-- Added clear section headers
-- Formatted file paths and commands in code blocks
-- Added explanatory text for clarity
-- Organized the workflow into logical steps
-- Added a Notes section at the end
