@@ -6,7 +6,7 @@ from rna_datasets import RNA_Dataset
 import os
 
 
-def test_from_checkpoint(checkpoint_path, test_df, model, criterion=None, 
+def test_from_checkpoint(checkpoint_path, test_df, model, model_name, criterion=None, 
                         batch_size=1, device='cuda', save_predictions=True, 
                         output_dir=None):
     """
@@ -111,8 +111,8 @@ def test_from_checkpoint(checkpoint_path, test_df, model, criterion=None,
     
     # Create DataFrame with predictions
     test_data_with_preds = test_df.copy()
-    test_data_with_preds['log_kfold_est_lig_Z'] = log_kfold_est_lig_Z
-    test_data_with_preds['log_kfold_est_nolig_Z'] = log_kfold_est_nolig_Z
+    test_data_with_preds[f'log_kfold_est_lig_Z_{model_name}'] = log_kfold_est_lig_Z
+    test_data_with_preds[f'log_kfold_est_nolig_Z_{model_name}'] = log_kfold_est_nolig_Z
     
     # Add test loss column if available
     if avg_test_loss is not None:
@@ -125,7 +125,7 @@ def test_from_checkpoint(checkpoint_path, test_df, model, criterion=None,
         
         # Create output filename based on checkpoint
         checkpoint_name = os.path.splitext(os.path.basename(checkpoint_path))[0]
-        output_path = os.path.join(output_dir, f'RS_{checkpoint_name}_Z.json')
+        output_path = os.path.join(output_dir, f'RS_{model_name}_Z.json')
         
         
         test_data_with_preds.to_json(output_path, index=False)

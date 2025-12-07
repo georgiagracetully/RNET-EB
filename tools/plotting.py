@@ -192,7 +192,7 @@ def plot_final_summary(train_losses, val_losses, figure_dir, filename='final_los
     # Reset to defaults
     plt.rcParams.update(plt.rcParamsDefault)
 
-def plot_prediction_comparison(test_data, save_dir=None, show_plots=True):
+def plot_prediction_comparison(test_data, model_name, save_dir=None, show_plots=True):
     """
     Create scatter plots comparing experimental and predicted logKd values.
     
@@ -217,9 +217,9 @@ def plot_prediction_comparison(test_data, save_dir=None, show_plots=True):
     
     # Calculate correlation coefficients
     corr_lig = np.corrcoef(test_data['logkd_lig_scaled'], 
-                           test_data['log_kfold_est_lig_Z'])[0, 1]
+                           test_data[f'log_kfold_est_lig_Z_{model_name}'])[0, 1]
     corr_nolig = np.corrcoef(test_data['logkd_nolig_scaled'], 
-                             test_data['log_kfold_est_nolig_Z'])[0, 1]
+                             test_data[f'log_kfold_est_nolig_Z_{model_name}'])[0, 1]
     
     # ========================================================================
     # First plot: logkd_lig vs. logkd_lig_pred
@@ -228,16 +228,16 @@ def plot_prediction_comparison(test_data, save_dir=None, show_plots=True):
     
     # Scatter plot
     ax1.scatter(test_data['logkd_lig_scaled'], 
-                test_data['log_kfold_est_lig_Z'],
+                test_data[f'log_kfold_est_lig_Z_{model_name}'],
                 color=scatter_color_lig, 
-                s=100, 
+                s=15,  # Changed from 100 to 15
                 alpha=0.6,
                 edgecolors='black',
-                linewidth=0.5)
+                linewidth=0.3)  # Changed from 0.5 to 0.3
     
     # Regression line
     z = np.polyfit(test_data['logkd_lig_scaled'], 
-                   test_data['log_kfold_est_lig_Z'], 1)
+                   test_data[f'log_kfold_est_lig_Z_{model_name}'], 1)
     p = np.poly1d(z)
     x_line = np.linspace(test_data['logkd_lig_scaled'].min(), 
                          test_data['logkd_lig_scaled'].max(), 100)
@@ -249,7 +249,7 @@ def plot_prediction_comparison(test_data, save_dir=None, show_plots=True):
     # Labels with Unicode subscripts (no LaTeX needed)
     ax1.set_xlabel('Experimental log K\u1D05 (ligand)', fontsize=14)
     ax1.set_ylabel('Predicted log K\u1D05 (ligand)', fontsize=14)
-    ax1.set_title('RNET-EB: Ligand-bound State', fontsize=16)
+    ax1.set_title(f'{model_name}: Ligand-bound State', fontsize=16)
     
     # Legend
     ax1.legend(fontsize=12, frameon=False, loc='best')
@@ -288,16 +288,16 @@ def plot_prediction_comparison(test_data, save_dir=None, show_plots=True):
     
     # Scatter plot
     ax2.scatter(test_data['logkd_nolig_scaled'], 
-                test_data['log_kfold_est_nolig_Z'],
+                test_data[f'log_kfold_est_nolig_Z_{model_name}'],
                 color=scatter_color_nolig, 
-                s=100, 
+                s=15,  # Changed from 100 to 15
                 alpha=0.6,
                 edgecolors='black',
-                linewidth=0.5)
+                linewidth=0.3)  # Changed from 0.5 to 0.3
     
     # Regression line
     z = np.polyfit(test_data['logkd_nolig_scaled'], 
-                   test_data['log_kfold_est_nolig_Z'], 1)
+                   test_data[f'log_kfold_est_nolig_Z_{model_name}'], 1)
     p = np.poly1d(z)
     x_line = np.linspace(test_data['logkd_nolig_scaled'].min(), 
                          test_data['logkd_nolig_scaled'].max(), 100)
@@ -309,7 +309,7 @@ def plot_prediction_comparison(test_data, save_dir=None, show_plots=True):
     # Labels with Unicode subscripts (no LaTeX needed)
     ax2.set_xlabel('Experimental log K\u1D05 (no ligand)', fontsize=14)
     ax2.set_ylabel('Predicted log K\u1D05 (no ligand)', fontsize=14)
-    ax2.set_title('RNET-EB: Ligand-free State', fontsize=16)
+    ax2.set_title(f'{model_name}: Ligand-free State', fontsize=16)
     
     # Legend
     ax2.legend(fontsize=12, frameon=False, loc='best')
