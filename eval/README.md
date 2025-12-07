@@ -16,6 +16,20 @@ Move the saved test predictions to `EternaBench/data/RiboswitchCalculations`
 cp path/to/RNET-EB/results/test_preds/RS_RNet_EB_000_Z.json /path/to/EternaBench/data/RiboswitchCalculations
 ```
 
+And then zip those files:
+
+```python
+import pandas as pd
+import zipfile
+
+# Zip the NPT file
+with zipfile.ZipFile('RS_RNet_EB_000_NPT_Z.json.zip', 'w', zipfile.ZIP_DEFLATED) as zipf:
+    zipf.write('RS_RNet_EB_000_NPT_Z.json')
+
+# Zip the standard file
+with zipfile.ZipFile('RS_RNet_EB_000_Z.json.zip', 'w', zipfile.ZIP_DEFLATED) as zipf:
+    zipf.write('RS_RNet_EB_000_Z.json')
+```
 ## 3) Compile Riboswitch Metadata
 
 I used Anthropic's model claude 4-5 to generate a starter script called `CompileRiboswitchMetadata.py` that I added to my `EternaBench/scripts` folder. This compiles all the `nolig_Z` columns (inner, to remove training samples that are present in all other package calculation predictions except in teh RNet preds dataframe) into one dataframe with metadata included. 
@@ -26,7 +40,7 @@ python scripts/CompileRiboswitchMetadata.py data/RiboswitchCalculations --output
 
 ## 3) Bootstrap and Evaluate
 
-Now I want to bootstrap all correlations from every dataset type with n=1000 iterations and then get a `BOOTSTRAPS.json.zip` for each package evaluated. To do this, I will use a modified `ScoreRiboswitches.py` (in GT EB-EVAL repository, modification is just patched for Python 3 compatibility). 
+Now I want to bootstrap all correlations from every dataset type with n=1000 iterations and then get a `BOOTSTRAPS.json.zip` for each package evaluated (In this example, I just get one BOOTSTRAPS.json.zip because I am using a compiled .json file in step 2, but traditionally you run this step using each individual package calculation file). To do this, I will use a modified `ScoreRiboswitches.py` (in GT EB-EVAL repository, modification is just patched for Python 3 compatibility). 
 
 However, I notice that the scoring is based on `logkd_nolig`, `logkd_lig`, and `log_AR`, but I first just want to score based on the `logkd_nolig`, so I am going to modify the x and y inputs:
 
@@ -84,3 +98,7 @@ savefig('FIGURES/3/Figure_3D_replicate_with_eb.pdf', bbox_inches='tight')
 ```
 
 This generated the z-score figure that I named `Figure_3D_replicate_with_eb.pdf`.
+
+**Note:** For this figure to generate, you need to manually edit the eternabench `package_metadata.csv` to include RNet_EB_000 and 
+RNet_EB_000_NPT. (I also saved a copy within this repo).
+
