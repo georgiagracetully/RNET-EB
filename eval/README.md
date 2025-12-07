@@ -1,6 +1,3 @@
-Here's the cleaned-up README.md file:
-
-```markdown
 # Benchmarking RNET-EB
 
 ## Generating Z-scores for Model Comparison
