@@ -1,43 +1,101 @@
-# Benchmarking RNET-EB
+# Steps for Benchmarking Results Against Other Riboswitch Calculations
 
-## Generating Z-scores for Model Comparison
+## 1) Clone EternaBench Repository
 
-To benchmark RNET-EB against other models, I used the EternaBench scoring system to calculate Z-scores.
+```bash
+git clone https://github.com/eternagame/EternaBench.git
+```
 
-### Step 1: Compile Bootstrapped Results
+## 2) Move Saved Test Predictions to EternaBench
 
-Run the following command to generate Z-scores:
+Move the saved test predictions to `EternaBench/data/RiboswitchCalculations`
+
+**Example:**
+```bash
+cp path/to/RNET-EB/results/test_preds/RS_RNET_EB_000_best_checkpoint_Z.json /path/to/EternaBench/data/RiboswitchCalculations
+```
+
+## 3) Bootstrap and Evaluate
+
+Now I want to bootstrap n = 1000 and then evaluate. 
+
+**Note:** Instead of rerunning EternaBench with requirements, I just patched individual files and then ran tests.
+
+## 4) Rename File for Compatibility
+
+I renamed the file with a `.zip` extension so that the original scoring scripts work (it doesn't actually need to be zipped):
+
+```bash
+mv RS_RNET_EB_000_best_checkpoint_Z.json RS_RNET_EB_000_best_checkpoint_Z.json.zip
+```
+
+## 5) Bootstrap All Correlations
+
+Now I want to bootstrap all correlations from every dataset type, and then get a `BOOTSTRAPS.json.zip` for each package evaluated. To do this, I will use the modified `ScoreRiboswitches.py` (in GT EB-EVAL repository, modification is just patched for Python 3 compatibility). 
+
+However, I notice that the scoring is based on `logkd_nolig`, `logkd_lig`, and `log_AR`, but I first just want to score based on the `logkd_nolig`, so I am going to modify the x and y inputs:
+
+**Original:**
+```python
+elif args.method == 'Z':
+    x_inputs = ['logkd_nolig_scaled', 'logkd_lig_scaled', 'log_AR']
+    y_inputs = ['log_kfold_est_nolig_Z', 'log_kfold_est_lig_Z', 'log_AR_est']
+```
+
+**Modified to:**
+```python
+elif args.method == 'Z':
+    x_inputs = ['logkd_nolig_scaled']
+    y_inputs = ['log_kfold_est_nolig_Z']
+```
+
+I will then manually save these files to a folder called `bootstrap_nolig`.
+
+## Understanding the ScoreRiboswitches.py Script
+
+The `ScoreRiboswitches.py` script iterates over all unique Datasets in the `ScoreRiboswitches` function, and then over each package in a list in the `calculate_metric` function in the `stats.py` script within eternabench source code.
+
+## 6) Compile Riboswitch Metadata
+
+I used Anthropic AI to generate a starter script called `CompileRiboswitchMetadata.py` that I added to my `EternaBench/scripts` folder. This compiles all the `nolig_Z` columns (inner, to remove training samples) into one dataframe. 
+
+**Note:** I had to manually rename columns in the `RNET_EB_000.json` file to match nomenclature.
+
+```bash
+python scripts/CompileRiboswitchMetadata.py data/RiboswitchCalculations --output 'RS_nolig_compiled_preds.json'
+```
+
+## 7) Score the Compiled Predictions
+
+I then ran the `ScoreRiboswitches_nolig_Metadata.py` script to get the `RS_nolig_compiled_preds_BOOTSTRAPS.json.zip`:
+
+```bash
+python scripts/ScoreRiboswitches_nolig_Metadata.py RS_nolig_compiled_preds.json --n_bootstraps=1000 --metric='pearson' --method='Z'
+```
+
+## 8) Compile Bootstrapped Results
+
+Then I ran `CompileBootstrappedResults.py` with the `package_list_000.txt`:
 
 ```bash
 python scripts/CompileBootstrappedResults.py 'RS' -o no_lig_assessment_with_rnet_eb_000 --calculate_Z_scores package_list_000.txt
 ```
 
-This generates the output file:
-```
-no_lig_assessment_with_rnet_eb_000_pearson_zscores_by_Dataset.csv
-```
+This generated `no_lig_assessment_with_rnet_eb_000_pearson_zscores_by_Dataset.csv`.
 
-### Step 2: Generate Heatmap Figure
+## 9) Generate Z-Score Figure
 
-Once the Z-scores CSV file is saved, run the following code block (adapted from code cell "Riboswitch Data" in the Jupyter notebook `3_EternaFold_TestSets`):
+Once I had this saved, I ran the following code block (copying code cell Riboswitch Data from the Jupyter notebook `3_EternaFold_TestSets`):
 
 ```python
-# Load the Z-scores data
-zscores = pd.read_csv(os.environ['ETERNABENCH_PATH'] + '/scoring_data/no_lig_assessment_with_rnet_eb_000_pearson_zscores_by_Dataset.csv')
+# Original line:
+# zscores = pd.read_csv(os.environ['ETERNABENCH_PATH']+'/scoring_data/RS_bps_pearson_zscores_Fig3_efold_testset.csv')
 
-# Generate ranked heatmap
+# Modified to:
+zscores = pd.read_csv(os.environ['ETERNABENCH_PATH']+'/scoring_data/no_lig_assessment_with_rnet_eb_000_pearson_zscores_by_Dataset.csv')
+
 eb.plot.ranked_heatmap(zscores, vmin=-2, vmax=2, size=2)
-
-# Save figure
 savefig('FIGURES/3/Figure_3D_replicate_with_eb.pdf', bbox_inches='tight')
 ```
 
-This generates a heatmap visualization named `Figure_3D_replicate_with_eb.pdf` comparing RNET-EB performance to other models.
-
-## Notes
-
-- The Z-score calculation is based on Pearson correlation coefficients
-- The heatmap uses a color scale from -2 to +2 standard deviations
-- Results are organized by dataset for easy comparison
-```
-
+This generated the z-score figure that I named `Figure_3D_replicate_with_eb.pdf`.
