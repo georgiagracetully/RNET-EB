@@ -5,33 +5,28 @@
 ```bash
 git clone https://github.com/eternagame/EternaBench.git
 ```
+**Note:** Instead of rerunning EternaBench with requirements in archived folder, I just patched individual files and then ran scripts (this mainly just involved changing any instance of `pd.append` to `pd.concat`).
 
-## 2) Move Saved Test Predictions to EternaBench
+## 2) Copy Saved Test Predictions to EternaBench
 
 Move the saved test predictions to `EternaBench/data/RiboswitchCalculations`
 
 **Example:**
 ```bash
-cp path/to/RNET-EB/results/test_preds/RS_RNET_EB_000_best_checkpoint_Z.json /path/to/EternaBench/data/RiboswitchCalculations
+cp path/to/RNET-EB/results/test_preds/RS_RNet_EB_000_Z.json /path/to/EternaBench/data/RiboswitchCalculations
+```
+
+## 3) Compile Riboswitch Metadata
+
+I used Anthropic's model claude 4-5 to generate a starter script called `CompileRiboswitchMetadata.py` that I added to my `EternaBench/scripts` folder. This compiles all the `nolig_Z` columns (inner, to remove training samples that are present in all other package calculation predictions except in teh RNet preds dataframe) into one dataframe with metadata included. 
+
+```bash
+python scripts/CompileRiboswitchMetadata.py data/RiboswitchCalculations --output 'RS_nolig_compiled_preds.json'
 ```
 
 ## 3) Bootstrap and Evaluate
 
-Now I want to bootstrap n = 1000 and then evaluate. 
-
-**Note:** Instead of rerunning EternaBench with requirements, I just patched individual files and then ran tests.
-
-## 4) Rename File for Compatibility
-
-I renamed the file with a `.zip` extension so that the original scoring scripts work (it doesn't actually need to be zipped):
-
-```bash
-mv RS_RNET_EB_000_best_checkpoint_Z.json RS_RNET_EB_000_best_checkpoint_Z.json.zip
-```
-
-## 5) Bootstrap All Correlations
-
-Now I want to bootstrap all correlations from every dataset type, and then get a `BOOTSTRAPS.json.zip` for each package evaluated. To do this, I will use the modified `ScoreRiboswitches.py` (in GT EB-EVAL repository, modification is just patched for Python 3 compatibility). 
+Now I want to bootstrap all correlations from every dataset type with n=1000 iterations and then get a `BOOTSTRAPS.json.zip` for each package evaluated. To do this, I will use a modified `ScoreRiboswitches.py` (in GT EB-EVAL repository, modification is just patched for Python 3 compatibility). 
 
 However, I notice that the scoring is based on `logkd_nolig`, `logkd_lig`, and `log_AR`, but I first just want to score based on the `logkd_nolig`, so I am going to modify the x and y inputs:
 
@@ -49,33 +44,23 @@ elif args.method == 'Z':
     y_inputs = ['log_kfold_est_nolig_Z']
 ```
 
-I will then manually save these files to a folder called `bootstrap_nolig`.
+I renamed this modified scoring script as `ScoreRiboswitches_nolig_Metadata.py`. 
 
 ## Understanding the ScoreRiboswitches.py Script
 
 The `ScoreRiboswitches.py` script iterates over all unique Datasets in the `ScoreRiboswitches` function, and then over each package in a list in the `calculate_metric` function in the `stats.py` script within eternabench source code.
 
-## 6) Compile Riboswitch Metadata
+## 4) Score the Compiled Predictions
 
-I used Anthropic AI to generate a starter script called `CompileRiboswitchMetadata.py` that I added to my `EternaBench/scripts` folder. This compiles all the `nolig_Z` columns (inner, to remove training samples) into one dataframe. 
-
-**Note:** I had to manually rename columns in the `RNET_EB_000.json` file to match nomenclature.
-
-```bash
-python scripts/CompileRiboswitchMetadata.py data/RiboswitchCalculations --output 'RS_nolig_compiled_preds.json'
-```
-
-## 7) Score the Compiled Predictions
-
-I then ran the `ScoreRiboswitches_nolig_Metadata.py` script to get the `RS_nolig_compiled_preds_BOOTSTRAPS.json.zip`:
+I then ran the `ScoreRiboswitches_nolig_Metadata.py` script to get `RS_nolig_compiled_preds_BOOTSTRAPS.json.zip` which I temporarily stored in my main EternaBench directory:
 
 ```bash
 python scripts/ScoreRiboswitches_nolig_Metadata.py RS_nolig_compiled_preds.json --n_bootstraps=1000 --metric='pearson' --method='Z'
 ```
 
-## 8) Compile Bootstrapped Results
+## 5) Compile Bootstrapped Results
 
-Then I ran `CompileBootstrappedResults.py` with the `package_list_000.txt`:
+Then I ran `CompileBootstrappedResults.py` with `package_list_000.txt`:
 
 ```bash
 python scripts/CompileBootstrappedResults.py 'RS' -o no_lig_assessment_with_rnet_eb_000 --calculate_Z_scores package_list_000.txt
@@ -83,7 +68,7 @@ python scripts/CompileBootstrappedResults.py 'RS' -o no_lig_assessment_with_rnet
 
 This generated `no_lig_assessment_with_rnet_eb_000_pearson_zscores_by_Dataset.csv`.
 
-## 9) Generate Z-Score Figure
+## 6) Generate Z-Score Figure
 
 Once I had this saved, I ran the following code block (copying code cell Riboswitch Data from the Jupyter notebook `3_EternaFold_TestSets`):
 
