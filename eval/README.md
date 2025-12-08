@@ -77,10 +77,10 @@ python scripts/ScoreRiboswitches_nolig_Metadata.py RS_nolig_compiled_preds.json 
 Then I ran `CompileBootstrappedResults.py` with `package_list_000.txt`:
 
 ```bash
-python scripts/CompileBootstrappedResults.py 'RS' -o no_lig_assessment_with_rnet_eb_000 --calculate_Z_scores package_list_000.txt
+python scripts/CompileBootstrappedResults.py 'RS' -o RS_no_lig_assessment_with_rnet_eb_000_and_NPT --calculate_Z_scores package_list_000.txt
 ```
 
-This generated `no_lig_assessment_with_rnet_eb_000_pearson_zscores_by_Dataset.csv`.
+This generated `RS_no_lig_assessment_with_rnet_eb_000_and_NPT_pearson_ranking.csv` and `RS_no_lig_assessment_with_rnet_eb_000_and_NPT_pearson_zscores_by_Dataset.csv`.
 
 ## 6) Generate Z-Score Figure
 
@@ -91,13 +91,13 @@ Once I had this saved, I ran the following code block (copying code cell Riboswi
 # zscores = pd.read_csv(os.environ['ETERNABENCH_PATH']+'/scoring_data/RS_bps_pearson_zscores_Fig3_efold_testset.csv')
 
 # Modified to:
-zscores = pd.read_csv(os.environ['ETERNABENCH_PATH']+'/scoring_data/no_lig_assessment_with_rnet_eb_000_pearson_zscores_by_Dataset.csv')
+zscores = pd.read_csv(os.environ['ETERNABENCH_PATH']+'/scoring_data/RS_no_lig_assessment_with_rnet_eb_000_and_NPT_pearson_zscores_by_Dataset.csv')
 
 eb.plot.ranked_heatmap(zscores, vmin=-2, vmax=2, size=2)
-savefig('FIGURES/3/Figure_3D_replicate_with_eb.pdf', bbox_inches='tight')
+savefig('FIGURES/3/Figure_3D_replicate_with_RNet_EB_000.pdf', bbox_inches='tight')
 ```
 
-This generated the z-score figure that I named `Figure_3D_replicate_with_eb.pdf`.
+This generated the z-score figure that I named `Figure_3D_Replicate_with_RNet_EB_000.pdf`.
 
 **Note:** For this figure to generate, you need to manually edit the eternabench `package_metadata.csv` to include RNet_EB_000 and 
 RNet_EB_000_NPT. (I also saved a copy within this repo).
