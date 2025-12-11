@@ -38,7 +38,7 @@ I used Anthropic's model claude 4-5 to generate a starter script called `Compile
 python scripts/CompileRiboswitchMetadata.py data/RiboswitchCalculations --output 'RS_nolig_compiled_preds.json'
 ```
 
-## 3) Bootstrap and Evaluate
+## 4) Bootstrap and Evaluate
 
 Now I want to bootstrap all correlations from every dataset type with n=1000 iterations and then get a `BOOTSTRAPS.json.zip` for each package evaluated (In this example, I just get one BOOTSTRAPS.json.zip because I am using a compiled .json file in step 2, but traditionally you run this step using each individual package calculation file). To do this, I will use a modified `ScoreRiboswitches.py` (in GT EB-EVAL repository, modification is just patched for Python 3 compatibility). 
 
@@ -64,7 +64,7 @@ I renamed this modified scoring script as `ScoreRiboswitches_nolig_Metadata.py`.
 
 The `ScoreRiboswitches.py` script iterates over all unique Datasets in the `ScoreRiboswitches` function, and then over each package in a list in the `calculate_metric` function in the `stats.py` script within eternabench source code.
 
-## 4) Score the Compiled Predictions
+## 5) Score the Compiled Predictions
 
 I then ran the `ScoreRiboswitches_nolig_Metadata.py` script to get `RS_nolig_compiled_preds_BOOTSTRAPS.json.zip` which I temporarily stored in my main EternaBench directory:
 
@@ -72,7 +72,7 @@ I then ran the `ScoreRiboswitches_nolig_Metadata.py` script to get `RS_nolig_com
 python scripts/ScoreRiboswitches_nolig_Metadata.py RS_nolig_compiled_preds.json --n_bootstraps=1000 --metric='pearson' --method='Z'
 ```
 
-## 5) Compile Bootstrapped Results
+## 6) Compile Bootstrapped Results
 
 Then I ran `CompileBootstrappedResults.py` with `package_list_000.txt`:
 
@@ -82,7 +82,7 @@ python scripts/CompileBootstrappedResults.py 'RS' -o RS_no_lig_assessment_with_r
 
 This generated `RS_no_lig_assessment_with_rnet_eb_000_and_NPT_pearson_ranking.csv` and `RS_no_lig_assessment_with_rnet_eb_000_and_NPT_pearson_zscores_by_Dataset.csv`.
 
-## 6) Generate Z-Score Figure
+## 7) Generate Z-Score Figure
 
 Once I had this saved, I ran the following code block (copying code cell Riboswitch Data from the Jupyter notebook `3_EternaFold_TestSets`):
 
