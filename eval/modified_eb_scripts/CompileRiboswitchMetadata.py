@@ -18,7 +18,7 @@ def compile_z_metadata_with_metadata(directory, metadata_cols=None):
     """
     
     if metadata_cols is None:
-        metadata_cols = ['Puzzle_Name', 'Design', 'Player', 'Round', 'Dataset', 'logkd_nolig_scaled']
+        metadata_cols = ['Puzzle_Name', 'Design', 'Player', 'Round', 'Dataset', 'logkd_nolig_scaled', 'logkd_lig_scaled']
     
     directory = Path(directory)
     z_files = sorted(directory.glob('*_Z.json.zip'))
